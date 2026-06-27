@@ -82,7 +82,6 @@
                 <tr class="pipeline-child-row">
                   <td colspan="6">
                     <div class="child-row-content">
-                      <span class="stages-title-text">Environment Stages:</span>
                       <div class="environments-container" *ngIf="run.environments && run.environments.length > 0">
                         <ng-container *ngFor="let env of run.environments; let i = index; let isLast = last">
                           <div class="env-item status-{{ getEnvDisplayStatus(env)?.toLowerCase() || 'none' }}">
