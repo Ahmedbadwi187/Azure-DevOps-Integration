@@ -5,6 +5,7 @@ import { CiList } from './pages/ci-list/ci-list';
 import { CdList } from './pages/cd-list/cd-list';
 import { CiRuns } from './pages/ci-runs/ci-runs';
 import { CdRuns } from './pages/cd-runs/cd-runs';
+import { Analytics } from './pages/analytics/analytics';
 import { authGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
@@ -14,6 +15,7 @@ export const routes: Routes = [
   { path: 'ci/runs/:project/:definitionId', component: CiRuns, canActivate: [authGuard] },
   { path: 'cd', component: CdList, canActivate: [authGuard] },
   { path: 'cd/runs/:project/:definitionId', component: CdRuns, canActivate: [authGuard] },
+  { path: 'analytics', component: Analytics, canActivate: [authGuard] }, 
   { path: '', redirectTo: '/connect', pathMatch: 'full' },
   { path: '**', redirectTo: '/connect' }
 ];

@@ -229,5 +229,19 @@ namespace AzureDevOpsBackend.Controllers
                 return StatusCode(500, new { message = $"Internal server error: {ex.Message}" });
             }
         }
+
+        [HttpGet("analytics")]
+        public async Task<IActionResult> GetAnalytics([FromQuery] int days = 30)
+        {
+            try
+            {
+                var analytics = await _devOpsService.GetAnalyticsAsync(days);
+                return Ok(analytics);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = $"Internal server error: {ex.Message}" });
+            }
+        }
     }
 }

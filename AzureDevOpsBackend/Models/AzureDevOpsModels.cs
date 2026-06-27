@@ -230,4 +230,40 @@ namespace AzureDevOpsBackend.Models
         public string Status { get; set; } = string.Empty;
         public List<RawDeployStep> DeploySteps { get; set; } = new();
     }
+
+    public class DevOpsAnalyticsModel
+    {
+        public AnalyticsSummary Summary { get; set; } = new();
+        public List<DailyTrendPoint> Trends { get; set; } = new();
+        public List<PipelineAnalyticsModel> Pipelines { get; set; } = new();
+    }
+
+    public class AnalyticsSummary
+    {
+        public double DeploymentFrequency { get; set; }
+        public int TotalDeployments { get; set; }
+        public double SuccessRate { get; set; }
+        public double AverageDurationSeconds { get; set; }
+        public double MttrSeconds { get; set; }
+    }
+
+    public class DailyTrendPoint
+    {
+        public string Date { get; set; } = string.Empty;
+        public int DeploymentsCount { get; set; }
+        public double SuccessRate { get; set; }
+        public double AverageDurationSeconds { get; set; }
+        public double MttrSeconds { get; set; }
+    }
+
+    public class PipelineAnalyticsModel
+    {
+        public int Id { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string ProjectName { get; set; } = string.Empty;
+        public double DeploymentFrequency { get; set; }
+        public double SuccessRate { get; set; }
+        public double AverageDurationSeconds { get; set; }
+        public double MttrSeconds { get; set; }
+    }
 }

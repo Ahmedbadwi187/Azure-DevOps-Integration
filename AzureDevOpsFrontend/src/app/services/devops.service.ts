@@ -202,4 +202,8 @@ export class DevOpsService {
       } : undefined
     };
   }
+
+  getAnalytics(days: number): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/analytics?days=${days}`);
+  }
 }
