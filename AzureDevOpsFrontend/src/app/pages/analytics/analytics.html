@@ -24,17 +24,20 @@
       <span class="alert-message">{{ error }}</span>
     </div>
 
-    <!-- Loading State -->
-    <div class="loading-state card animate-pulse" *ngIf="isLoading">
+    <!-- Initial Loading State -->
+    <div class="loading-state card animate-pulse" *ngIf="isLoading && !summary">
       <div class="spinner"></div>
       <p>Crunching metrics and computing trends...</p>
     </div>
 
-    <ng-container *ngIf="!isLoading && summary">
+    <ng-container *ngIf="summary">
       <!-- Summary Cards Grid -->
       <section class="summary-cards-grid">
         <!-- Success Rate Card -->
         <div class="metric-card card">
+          <div class="card-loader-overlay" *ngIf="isLoading">
+            <div class="spinner-small"></div>
+          </div>
           <div class="metric-icon success-icon-bg">💚</div>
           <div class="metric-info">
             <span class="metric-title">Build Success Rate</span>
@@ -47,6 +50,9 @@
 
         <!-- Deployments Card -->
         <div class="metric-card card">
+          <div class="card-loader-overlay" *ngIf="isLoading">
+            <div class="spinner-small"></div>
+          </div>
           <div class="metric-icon deploy-icon-bg">🚀</div>
           <div class="metric-info">
             <span class="metric-title">Total Deployments</span>
@@ -57,6 +63,9 @@
 
         <!-- Average Duration Card -->
         <div class="metric-card card">
+          <div class="card-loader-overlay" *ngIf="isLoading">
+            <div class="spinner-small"></div>
+          </div>
           <div class="metric-icon time-icon-bg">⏱️</div>
           <div class="metric-info">
             <span class="metric-title">Avg Build Duration</span>
@@ -67,6 +76,9 @@
 
         <!-- MTTR Card -->
         <div class="metric-card card">
+          <div class="card-loader-overlay" *ngIf="isLoading">
+            <div class="spinner-small"></div>
+          </div>
           <div class="metric-icon mttr-icon-bg">🩹</div>
           <div class="metric-info">
             <span class="metric-title">MTTR</span>
@@ -80,6 +92,9 @@
       <section class="charts-grid">
         <!-- Success Rate Trend -->
         <div class="chart-card card">
+          <div class="card-loader-overlay" *ngIf="isLoading">
+            <div class="spinner-small"></div>
+          </div>
           <div class="chart-card-header">
             <h3>Build Success Rate</h3>
             <span class="chart-subtitle">Daily success percentage</span>
@@ -91,6 +106,9 @@
 
         <!-- Deployment Volume Trend -->
         <div class="chart-card card">
+          <div class="card-loader-overlay" *ngIf="isLoading">
+            <div class="spinner-small"></div>
+          </div>
           <div class="chart-card-header">
             <h3>Deployments Volume</h3>
             <span class="chart-subtitle">Daily deployment volume</span>
@@ -102,6 +120,9 @@
 
         <!-- Build Duration Trend -->
         <div class="chart-card card">
+          <div class="card-loader-overlay" *ngIf="isLoading">
+            <div class="spinner-small"></div>
+          </div>
           <div class="chart-card-header">
             <h3>Average Build Duration</h3>
             <span class="chart-subtitle">Execution duration (minutes)</span>
@@ -113,6 +134,9 @@
 
         <!-- MTTR Trend -->
         <div class="chart-card card">
+          <div class="card-loader-overlay" *ngIf="isLoading">
+            <div class="spinner-small"></div>
+          </div>
           <div class="chart-card-header">
             <h3>Mean Time to Resolution (MTTR)</h3>
             <span class="chart-subtitle">Average recovery duration (hours)</span>
@@ -126,6 +150,9 @@
       <!-- Pipelines Leaderboard -->
       <section class="leaderboard-section">
         <div class="table-card card">
+          <div class="card-loader-overlay" *ngIf="isLoading">
+            <div class="spinner-small"></div>
+          </div>
           <div class="table-card-header">
             <h2>Pipeline Performance Leaderboard</h2>
             <p class="subtitle font-normal text-dimmed">Ranked by overall build and deployment metrics</p>
