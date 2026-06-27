@@ -193,17 +193,20 @@
 }
 
 .table-card {
-  padding: 2.25rem 1.75rem 1.75rem 1.75rem;
+  padding: 0;
+  overflow: hidden;
 }
 
 .table-card-header {
-  margin-bottom: 2rem;
+  padding: 2.25rem 1.75rem 0 1.75rem;
+  margin-bottom: 1.5rem;
 }
 
 .table-card-header h2 {
-  font-size: 1.1rem;
+  font-size: 1.15rem;
   font-weight: 600;
   margin: 0;
+  margin-bottom: 0.5rem;
   color: var(--color-text-main);
 }
 
