@@ -193,11 +193,11 @@
 }
 
 .table-card {
-  padding: 1.5rem;
+  padding: 2.25rem 1.75rem 1.75rem 1.75rem;
 }
 
 .table-card-header {
-  margin-bottom: 1.25rem;
+  margin-bottom: 2rem;
 }
 
 .table-card-header h2 {
