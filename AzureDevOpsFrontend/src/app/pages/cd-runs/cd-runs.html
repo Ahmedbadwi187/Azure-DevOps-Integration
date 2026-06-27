@@ -84,23 +84,36 @@
                     <div class="child-row-content">
                       <span class="stages-title-text">Environment Stages:</span>
                       <div class="environments-container" *ngIf="run.environments && run.environments.length > 0">
-                        <div class="env-item status-{{ getEnvDisplayStatus(env)?.toLowerCase() || 'none' }}" *ngFor="let env of run.environments">
-                          <span class="env-name">{{ env.name }}</span>
-                          <span class="badge badge-{{ getEnvDisplayStatus(env)?.toLowerCase() }}">
-                            {{ getEnvDisplayStatus(env) }}
-                          </span>
-                          <div class="env-actions" style="display: flex; gap: 8px; margin-top: 4px; align-items: center; justify-content: center;">
-                            <div class="action-btn-wrapper" *ngIf="canActOnEnv(env)" style="display: flex; gap: 4px;">
-                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="cursor:pointer;color:#28a745;" title="Approve" (click)="approveRelease(env.id)"><path d="M5 13l4 4L19 7"/></svg>
-                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="cursor:pointer;color:#dc3545;" title="Reject" (click)="rejectRelease(env.id)"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-                            </div>
-                            <div class="action-btn-wrapper" *ngIf="canDeployEnv(env)" style="display: flex; align-items: center;">
-                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="cursor:pointer;color:var(--secondary);" title="Deploy/Redeploy Stage" (click)="deployEnv(run.id, env.id, env.name)">
-                                <polygon points="5 3 19 12 5 21 5 3"></polygon>
-                              </svg>
+                        <ng-container *ngFor="let env of run.environments; let i = index; let isLast = last">
+                          <div class="env-item status-{{ getEnvDisplayStatus(env)?.toLowerCase() || 'none' }}">
+                            <div class="env-status-dot"></div>
+                            <span class="env-name" [title]="env.name">{{ env.name }}</span>
+                            <span class="badge badge-{{ getEnvDisplayStatus(env)?.toLowerCase() }}">
+                              {{ getEnvDisplayStatus(env) }}
+                            </span>
+                            <div class="env-actions">
+                              <div class="action-btn-wrapper" *ngIf="canActOnEnv(env)" style="display: flex; gap: 6px;">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="action-icon approve-icon" title="Approve" (click)="approveRelease(env.id)">
+                                  <path d="M20 6L9 17l-5-5"/>
+                                </svg>
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="action-icon reject-icon" title="Reject" (click)="rejectRelease(env.id)">
+                                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                                </svg>
+                              </div>
+                              <div class="action-btn-wrapper" *ngIf="canDeployEnv(env)">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="action-icon deploy-icon" title="Deploy/Redeploy Stage" (click)="deployEnv(run.id, env.id, env.name)">
+                                  <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                                </svg>
+                              </div>
                             </div>
                           </div>
-                        </div>
+                          
+                          <div class="env-connector" *ngIf="!isLast">
+                            <div class="connector-line"></div>
+                            <span class="connector-arrow">➔</span>
+                          </div>
+                        </ng-container>
                       </div>
                       <span class="text-dimmed text-xs" *ngIf="!run.environments || run.environments.length === 0">No stages</span>
                     </div>

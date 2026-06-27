@@ -84,32 +84,156 @@
 /* Environments Stages Styling */
 .environments-container {
   display: flex;
+  align-items: center;
   flex-wrap: wrap;
-  gap: 0.5rem;
+  gap: 0.75rem;
 }
 
 .env-item {
   display: flex;
   flex-direction: column;
-  background: rgba(255, 255, 255, 0.02);
+  background: rgba(22, 28, 45, 0.45);
   border: 1px solid var(--border-color);
-  padding: 0.35rem 0.65rem;
-  border-radius: 6px;
+  padding: 0.6rem 1rem;
+  border-radius: 8px;
   align-items: center;
-  gap: 0.25rem;
-  min-width: 80px;
+  gap: 0.35rem;
+  min-width: 110px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+
+.env-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(99, 102, 241, 0.15);
+}
+
+.env-status-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  transition: all 0.25s ease;
+}
+
+/* Status-specific overrides */
+.env-item.status-succeeded {
+  border-color: rgba(16, 185, 129, 0.3);
+}
+.env-item.status-succeeded .env-status-dot {
+  background-color: var(--color-succeeded);
+  box-shadow: 0 0 8px var(--color-succeeded);
+}
+
+.env-item.status-failed, .env-item.status-rejected {
+  border-color: rgba(244, 63, 94, 0.3);
+}
+.env-item.status-failed .env-status-dot, .env-item.status-rejected .env-status-dot {
+  background-color: var(--color-failed);
+  box-shadow: 0 0 8px var(--color-failed);
+}
+
+.env-item.status-inprogress, .env-item.status-running {
+  border-color: rgba(59, 130, 246, 0.4);
+}
+.env-item.status-inprogress .env-status-dot, .env-item.status-running .env-status-dot {
+  background-color: var(--color-progress);
+  box-shadow: 0 0 10px var(--color-progress);
+  animation: pulse-dot 1.5s infinite ease-in-out;
+}
+
+.env-item.status-pending, .env-item.status-pendingapproval {
+  border-color: rgba(245, 158, 11, 0.4);
+}
+.env-item.status-pending .env-status-dot, .env-item.status-pendingapproval .env-status-dot {
+  background-color: var(--color-warning);
+  box-shadow: 0 0 10px var(--color-warning);
+  animation: pulse-dot 1.5s infinite ease-in-out;
+}
+
+.env-item.status-notstarted, .env-item.status-notdeployed, .env-item.status-none {
+  border-color: var(--border-color);
+}
+.env-item.status-notstarted .env-status-dot, 
+.env-item.status-notdeployed .env-status-dot, 
+.env-item.status-none .env-status-dot {
+  background-color: var(--color-text-dimmed);
+}
+
+@keyframes pulse-dot {
+  0% { transform: scale(0.9); opacity: 0.6; }
+  50% { transform: scale(1.2); opacity: 1; }
+  100% { transform: scale(0.9); opacity: 0.6; }
 }
 
 .env-name {
-  font-size: 0.75rem;
+  font-size: 0.8rem;
   font-weight: 600;
   color: var(--color-text-main);
+  max-width: 100px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .env-item .badge {
-  padding: 0.1rem 0.4rem;
+  padding: 0.125rem 0.5rem;
   font-size: 0.65rem;
   border-radius: 4px;
+}
+
+/* Actions styling */
+.env-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 0.25rem;
+  align-items: center;
+  justify-content: center;
+  min-height: 20px;
+}
+
+.action-icon {
+  cursor: pointer;
+  transition: all 0.2s ease;
+  opacity: 0.7;
+}
+
+.action-icon:hover {
+  transform: scale(1.15);
+  opacity: 1;
+}
+
+.approve-icon {
+  color: var(--color-succeeded);
+}
+
+.reject-icon {
+  color: var(--color-failed);
+}
+
+.deploy-icon {
+  color: var(--secondary);
+}
+
+/* Timeline Connector Line and Arrow Styling */
+.env-connector {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 255, 255, 0.15);
+  z-index: 1;
+}
+
+.connector-line {
+  width: 30px;
+  height: 2px;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.25));
+}
+
+.connector-arrow {
+  margin-left: -5px;
+  font-size: 0.65rem;
+  opacity: 0.6;
 }
 
 /* Child Row Styling for Stages */
@@ -123,12 +247,13 @@
   display: flex;
   align-items: center;
   gap: 1.5rem;
-  background: rgba(255, 255, 255, 0.015);
-  padding: 0.75rem 1.25rem;
-  border-radius: 8px;
+  background: rgba(22, 28, 45, 0.2);
+  padding: 1rem 1.5rem;
+  border-radius: 10px;
   border: 1px dashed rgba(255, 255, 255, 0.08);
   margin-left: 1rem;
   margin-right: 1rem;
+  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .stages-title-text {
@@ -136,6 +261,6 @@
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: var(--color-text-dimmed);
+  color: var(--color-text-muted);
   white-space: nowrap;
 }
