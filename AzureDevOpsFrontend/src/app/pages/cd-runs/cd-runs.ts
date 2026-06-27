@@ -65,6 +65,12 @@ export class CdRuns implements OnInit {
 
   protected isLoading = false;
   protected error = '';
+  protected expandedRuns: { [runId: number]: boolean } = {};
+
+  toggleRunExpand(runId: number) {
+    this.expandedRuns[runId] = !this.expandedRuns[runId];
+    this.cdr.detectChanges();
+  }
 
   // Pagination
   protected currentPage = 1;

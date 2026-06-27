@@ -51,9 +51,16 @@
               <ng-container *ngFor="let run of paginatedRuns">
                 <tr>
                   <td>
-                    <a [href]="run.webUrl" target="_blank" class="run-link font-semibold">
-                      {{ run.name }}
-                    </a>
+                    <div class="run-name-cell">
+                      <button class="btn-expand" (click)="toggleRunExpand(run.id)" [title]="expandedRuns[run.id] ? 'Collapse Stages' : 'Expand Stages'">
+                        <svg class="chevron-icon" [class.expanded]="expandedRuns[run.id]" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                          <polyline points="9 18 15 12 9 6"></polyline>
+                        </svg>
+                      </button>
+                      <a [href]="run.webUrl" target="_blank" class="run-link font-semibold">
+                        {{ run.name }}
+                      </a>
+                    </div>
                   </td>
                   <td>
                     <span *ngIf="run.sourceBranch" class="branch-tag" [title]="run.sourceBranch">
@@ -79,7 +86,7 @@
                     <!-- placeholder for actions column -->
                   </td>
                 </tr>
-                <tr class="pipeline-child-row">
+                <tr class="pipeline-child-row" *ngIf="expandedRuns[run.id]">
                   <td colspan="6">
                     <div class="child-row-content">
                       <div class="grouped-environments-wrapper" *ngIf="run.environments && run.environments.length > 0">

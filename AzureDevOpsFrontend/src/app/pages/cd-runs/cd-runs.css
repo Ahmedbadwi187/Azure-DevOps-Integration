@@ -348,3 +348,37 @@
   white-space: nowrap;
   flex-shrink: 0;
 }
+
+/* Expand / Collapse Button and Cell Styles */
+.run-name-cell {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.btn-expand {
+  background: transparent;
+  border: none;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.btn-expand:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.chevron-icon {
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  transform: rotate(0deg);
+}
+
+.chevron-icon.expanded {
+  transform: rotate(90deg);
+}
