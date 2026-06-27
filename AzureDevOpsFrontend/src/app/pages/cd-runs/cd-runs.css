@@ -313,7 +313,7 @@
 
 /* Child Row Styling for Stages */
 .pipeline-child-row td {
-  padding-top: 0 !important;
+  padding-top: 0.75rem !important;
   padding-bottom: 1.25rem !important;
   border-bottom: 1px solid var(--border-color) !important;
 }
