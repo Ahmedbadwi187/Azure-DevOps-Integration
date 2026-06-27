@@ -19,7 +19,7 @@ export class Analytics implements OnInit, OnDestroy, AfterViewChecked {
   protected trends: any[] = [];
   protected pipelines: any[] = [];
 
-  protected timeframe = 30; // default 30 days
+  protected timeframe = 7; // default 7 days
   protected isLoading = false;
   protected error = '';
 
