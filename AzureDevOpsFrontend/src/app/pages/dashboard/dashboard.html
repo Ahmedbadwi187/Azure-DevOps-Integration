@@ -1,0 +1,122 @@
+<div class="app-container animate-fade-in">
+  <app-sidebar></app-sidebar>
+
+  <div class="main-content fade-in">
+    <header>
+      <h1>Dashboard Overview</h1>
+      <p class="subtitle">Overview of DevOps projects and automation status for <strong>{{ organizationName }}</strong>.</p>
+    </header>
+
+    <!-- Loading State -->
+    <div class="loading-state card" *ngIf="isLoading">
+      <div class="spinner"></div>
+      <p>Loading dashboard metrics...</p>
+    </div>
+
+    <!-- Error State -->
+    <div class="alert alert-error" *ngIf="error">
+      <span>{{ error }}</span>
+    </div>
+
+    <!-- Dashboard Content -->
+    <div *ngIf="!isLoading && !error">
+      
+      <!-- Metrics Grid -->
+      <div class="metrics-grid">
+        <div class="card metric-card">
+          <div class="metric-icon projects-icon">📁</div>
+          <div class="metric-data">
+            <span class="metric-title">Total Projects</span>
+            <span class="metric-value">{{ totalProjects }}</span>
+          </div>
+        </div>
+
+        <div class="card metric-card">
+          <div class="metric-icon ci-icon">⚡</div>
+          <div class="metric-data">
+            <span class="metric-title">CI Pipelines</span>
+            <span class="metric-value" *ngIf="!loadingCi">{{ totalCiPipelines }}</span>
+            <span class="spinner-small" *ngIf="loadingCi" style="margin-top: 0.5rem;"></span>
+          </div>
+        </div>
+
+        <div class="card metric-card">
+          <div class="metric-icon cd-icon">🚀</div>
+          <div class="metric-data">
+            <span class="metric-title">CD Pipelines</span>
+            <span class="metric-value" *ngIf="!loadingCd">{{ totalCdPipelines }}</span>
+            <span class="spinner-small" *ngIf="loadingCd" style="margin-top: 0.5rem;"></span>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Overall Charts Section -->
+      <div class="charts-grid grid-cols-1">
+        <div class="card chart-card">
+          <h3 class="chart-title">CI Pipelines - Latest Run Status</h3>
+          <div class="chart-container" *ngIf="!loadingCi">
+            <canvas id="ciChart"></canvas>
+          </div>
+          <div class="loading-chart" *ngIf="loadingCi">
+            <span class="spinner-small"></span>
+            <span style="font-size: 0.85rem; color: var(--color-text-muted);">Loading chart...</span>
+          </div>
+        </div>
+
+        <div class="card chart-card">
+          <h3 class="chart-title">CD Stages - Deployment Status</h3>
+          <div class="chart-container" *ngIf="!loadingCd">
+            <canvas id="cdChart"></canvas>
+          </div>
+          <div class="loading-chart" *ngIf="loadingCd">
+            <span class="spinner-small"></span>
+            <span style="font-size: 0.85rem; color: var(--color-text-muted);">Loading chart...</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Project Breakdown Charts Section -->
+      <div class="charts-grid grid-cols-1" style="margin-top: 1.5rem;">
+        <div class="card chart-card">
+          <h3 class="chart-title">CI Pipelines - Status by Project</h3>
+          <div class="chart-container" *ngIf="!loadingCi">
+            <canvas id="ciProjectChart"></canvas>
+          </div>
+          <div class="loading-chart" *ngIf="loadingCi">
+            <span class="spinner-small"></span>
+            <span style="font-size: 0.85rem; color: var(--color-text-muted);">Loading chart...</span>
+          </div>
+        </div>
+
+        <div class="card chart-card">
+          <h3 class="chart-title">CD Stages - Status by Project</h3>
+          <div class="chart-container" *ngIf="!loadingCd">
+            <canvas id="cdProjectChart"></canvas>
+          </div>
+          <div class="loading-chart" *ngIf="loadingCd">
+            <span class="spinner-small"></span>
+            <span style="font-size: 0.85rem; color: var(--color-text-muted);">Loading chart...</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Projects Section -->
+      <div class="projects-section">
+        <h2>Active Projects ({{ projects.length }})</h2>
+        
+        <div class="projects-grid">
+          <div class="card project-card" *ngFor="let project of projects">
+            <div class="project-header">
+              <span class="project-avatar">{{ project.name[0] | uppercase }}</span>
+              <h3 class="project-title">{{ project.name }}</h3>
+            </div>
+            <p class="project-desc">{{ project.description || 'No description provided for this project.' }}</p>
+            <div class="project-footer">
+              <a [href]="project.url" target="_blank" class="project-link">View in Azure DevOps ↗</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

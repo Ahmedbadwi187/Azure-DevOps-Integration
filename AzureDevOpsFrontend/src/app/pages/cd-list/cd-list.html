@@ -1,0 +1,182 @@
+<div class="app-container">
+  <app-sidebar></app-sidebar>
+
+  <div class="main-content fade-in">
+    <header>
+      <h1>CD Pipelines</h1>
+      <p class="subtitle">Monitor deployment environments and trigger releases across all organizational projects.</p>
+    </header>
+
+    <!-- Filters Bar -->
+    <div class="filters-bar card">
+      <div class="filter-input-group search-box">
+        <label for="search">Search Pipelines</label>
+        <input type="text" id="search" [(ngModel)]="searchQuery" (ngModelChange)="onFilterChange()"
+          placeholder="Filter by release pipeline name...">
+      </div>
+
+      <div class="filter-input-group project-select">
+        <label for="project-filter">Project</label>
+        <select id="project-filter" [(ngModel)]="selectedProject" (change)="onFilterChange()" class="custom-select">
+          <option value="">All Projects</option>
+          <option *ngFor="let p of projectsList" [value]="p">{{ p }}</option>
+        </select>
+      </div>
+
+      <button class="btn btn-secondary refresh-btn" (click)="loadPipelines()" [disabled]="isLoading">
+        <span>🔄 Refresh</span>
+      </button>
+    </div>
+
+    <!-- Loading State -->
+    <div class="loading-state card" *ngIf="isLoading">
+      <div class="spinner"></div>
+      <p>Fetching release definitions and deployment environments...</p>
+    </div>
+
+    <!-- Error State -->
+    <div class="alert alert-error" *ngIf="error">
+      <span>{{ error }}</span>
+    </div>
+
+    <!-- No Pipelines Found -->
+    <div class="no-pipelines card" *ngIf="!isLoading && !error && filteredPipelines.length === 0">
+      <p>No CD release pipelines found matching your filters.</p>
+    </div>
+
+    <!-- Pipelines Paginated List -->
+    <div *ngIf="!isLoading && !error && filteredPipelines.length > 0">
+      <div class="card table-card">
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Project</th>
+                <th>Release Pipeline Name</th>
+                <th>Latest Release</th>
+                <th>Branch</th>
+                <th>Created By</th>
+                <th>Created Date</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <ng-container *ngFor="let pipeline of paginatedPipelines">
+                <tr class="pipeline-main-row">
+                  <td class="project-cell">
+                    <div class="project-wrapper">
+                      <span class="project-avatar-small">{{ pipeline.projectName[0] | uppercase }}</span>
+                      <span class="project-name">{{ pipeline.projectName }}</span>
+                    </div>
+                  </td>
+                  <td class="pipeline-name-cell">
+                    <div class="name-wrapper">
+                      <span class="name clickable-pipeline-name" (click)="viewHistory(pipeline)">{{ pipeline.name
+                        }}</span>
+                    </div>
+                  </td>
+                  <td>
+                    <span *ngIf="pipeline.latestRelease">
+                      <a [href]="pipeline.latestRelease.webUrl" target="_blank" class="run-link">
+                        {{ pipeline.latestRelease.name }}
+                      </a>
+                    </span>
+                    <span class="text-dimmed" *ngIf="!pipeline.latestRelease">N/A</span>
+                  </td>
+                  <td>
+                    <span *ngIf="pipeline.latestRelease && pipeline.latestRelease.sourceBranch" class="branch-tag" [title]="pipeline.latestRelease.sourceBranch">
+                      {{ pipeline.latestRelease.sourceBranch }}
+                    </span>
+                    <span class="text-dimmed" *ngIf="!pipeline.latestRelease || !pipeline.latestRelease.sourceBranch">—</span>
+                  </td>
+                  <td>
+                    <span *ngIf="pipeline.latestRelease">{{ pipeline.latestRelease.createdBy }}</span>
+                    <span class="text-dimmed" *ngIf="!pipeline.latestRelease">—</span>
+                  </td>
+                  <td>
+                    <span *ngIf="pipeline.latestRelease && pipeline.latestRelease.createdOn">
+                      {{ pipeline.latestRelease.createdOn | date:'medium' }}
+                    </span>
+                    <span class="text-dimmed"
+                      *ngIf="!pipeline.latestRelease || !pipeline.latestRelease.createdOn">—</span>
+                  </td>
+                  <td class="actions-cell">
+                    <div class="action-btn-wrapper">
+                      <button class="btn btn-secondary btn-small" (click)="triggerRelease(pipeline)"
+                        [disabled]="triggeringIds[pipeline.definitionId]">
+                        <span class="spinner-small" *ngIf="triggeringIds[pipeline.definitionId]"></span>
+                        <span>{{ triggeringIds[pipeline.definitionId] ? 'Deploying...' : 'Deploy' }}</span>
+                      </button>
+                      <button class="btn btn-secondary btn-small icon-only-btn" (click)="viewHistory(pipeline)"
+                        title="View Releases History">
+                        👁️
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+                <tr class="pipeline-child-row">
+                  <td colspan="7">
+                    <div class="child-row-content">
+                      <span class="stages-title-text">Environment Stages:</span>
+                      <div class="environments-container"
+                        *ngIf="pipeline.latestRelease && pipeline.latestRelease.environments.length > 0">
+                        <div class="env-item status-{{ env.status?.toLowerCase() || 'none' }}" *ngFor="let env of pipeline.latestRelease.environments">
+                          <span class="env-name">{{ env.name }}</span>
+                          <span class="badge badge-{{ env.status?.toLowerCase() }}">
+                            {{ env.status }}
+                          </span>
+                        </div>
+                      </div>
+                      <span class="text-dimmed"
+                        *ngIf="!pipeline.latestRelease || pipeline.latestRelease.environments.length === 0">No
+                        stages</span>
+                    </div>
+                  </td>
+                </tr>
+              </ng-container>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Pagination Controls -->
+        <div class="pagination-controls" *ngIf="totalPages > 1">
+          <div class="pagination-info">
+            Showing {{ (currentPage - 1) * pageSize + 1 }} to {{ Math.min(currentPage * pageSize,
+            filteredPipelines.length) }} of {{ filteredPipelines.length }} pipelines
+          </div>
+          <div class="pagination-buttons">
+            <button class="btn btn-secondary btn-small" [disabled]="currentPage === 1"
+              (click)="goToPage(currentPage - 1)">Previous</button>
+            <button *ngFor="let page of getPageNumbers()" class="btn btn-small"
+              [class.btn-primary]="currentPage === page" [class.btn-secondary]="currentPage !== page"
+              (click)="goToPage(page)">
+              {{ page }}
+            </button>
+            <button class="btn btn-secondary btn-small" [disabled]="currentPage === totalPages"
+              (click)="goToPage(currentPage + 1)">Next</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Custom Confirmation Modal -->
+  <div class="modal-overlay" *ngIf="showConfirmModal" (click)="closeConfirm()">
+    <div class="modal-card card" (click)="$event.stopPropagation()">
+      <header class="modal-header">
+        <h3 class="modal-title">{{ confirmTitle }}</h3>
+        <button class="btn-close-modal" (click)="closeConfirm()">✕</button>
+      </header>
+      
+      <div class="modal-body">
+        <p class="modal-subtitle" style="margin-bottom: 0; font-size: 1rem; color: #fff;">{{ confirmMessage }}</p>
+      </div>
+
+      <footer class="modal-footer">
+        <button class="btn btn-secondary" (click)="closeConfirm()">Cancel</button>
+        <button class="btn btn-primary" (click)="executeConfirm()">Proceed</button>
+      </footer>
+    </div>
+  </div>
+</div>

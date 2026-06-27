@@ -1,0 +1,209 @@
+:host {
+  display: block;
+  width: 260px;
+  flex-shrink: 0;
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 10;
+}
+
+:host.collapsed {
+  width: 72px;
+}
+
+.sidebar-container {
+  width: 100%;
+  background: var(--bg-sidebar);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border-right: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  padding: 2.5rem 1.5rem;
+  position: relative;
+  transition: padding 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.logo-section {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 3.5rem;
+}
+
+.logo-icon {
+  width: 36px;
+  height: 36px;
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-weight: 800;
+  font-size: 1.25rem;
+  box-shadow: 0 4px 14px var(--primary-glow);
+}
+
+.logo-text {
+  font-size: 1.15rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #ffffff 40%, var(--color-text-muted) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.nav-links {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex: 1;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  padding: 0.85rem 1.15rem;
+  color: var(--color-text-muted);
+  text-decoration: none;
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 0.95rem;
+  border: 1px solid transparent;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.nav-item:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.02);
+  border-color: rgba(255, 255, 255, 0.05);
+}
+
+.nav-item.active {
+  color: #ffffff;
+  background: rgba(99, 102, 241, 0.12);
+  border-color: var(--border-color-active);
+  box-shadow: inset 0 0 12px rgba(99, 102, 241, 0.05);
+}
+
+.connection-info {
+  margin-top: auto;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.org-tag {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  background: rgba(255, 255, 255, 0.02);
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  font-size: 0.825rem;
+  color: var(--color-text-muted);
+  border: 1px solid var(--border-color);
+  margin-bottom: 0.75rem;
+}
+
+.org-status-dot {
+  width: 8px;
+  height: 8px;
+  background-color: var(--color-succeeded);
+  border-radius: 50%;
+  box-shadow: 0 0 8px var(--color-succeeded);
+  flex-shrink: 0;
+}
+
+.logout-btn {
+  color: var(--color-failed);
+  opacity: 0.8;
+}
+
+.logout-btn:hover {
+  color: var(--color-failed);
+  background: rgba(244, 63, 94, 0.06);
+  border-color: rgba(244, 63, 94, 0.15);
+}
+
+/* Toggle button absolute placement */
+.toggle-btn {
+  position: absolute;
+  right: -12px;
+  top: 1.5rem;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #0f1322;
+  border: 1px solid var(--border-color);
+  color: var(--color-text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 15;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+  padding: 0;
+  outline: none;
+}
+
+.toggle-btn:hover {
+  background: var(--primary);
+  color: #fff;
+  border-color: var(--primary);
+  box-shadow: 0 0 10px rgba(99, 102, 241, 0.4);
+}
+
+.arrow-icon {
+  font-size: 0.85rem;
+  font-weight: bold;
+}
+
+.nav-icon {
+  margin-right: 12px;
+  font-size: 1.2rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Collapsed Overrides */
+:host.collapsed .logo-text,
+:host.collapsed .nav-text,
+:host.collapsed .org-text,
+:host.collapsed .logout-text {
+  display: none;
+}
+
+:host.collapsed .logo-section {
+  gap: 0;
+  justify-content: center;
+  margin-bottom: 2.5rem;
+}
+
+:host.collapsed .nav-item {
+  justify-content: center;
+  padding: 0.85rem;
+}
+
+:host.collapsed .nav-icon {
+  margin-right: 0;
+}
+
+:host.collapsed .org-tag {
+  padding: 0.75rem;
+  justify-content: center;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  margin: 0 auto 0.75rem auto;
+}
+
+:host.collapsed .logout-btn {
+  justify-content: center;
+  padding: 0.85rem;
+}
+
+:host.collapsed .logout-btn svg {
+  margin-right: 0 !important;
+}

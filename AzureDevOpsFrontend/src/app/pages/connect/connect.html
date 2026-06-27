@@ -1,0 +1,78 @@
+<div class="connect-page-container fade-in">
+  <div class="connect-card card">
+    <div class="header">
+      <div class="portal-badge">∞</div>
+      <h1>Azure DevOps Portal</h1>
+      <p class="subtitle">Integrate build and release pipelines into a unified real-time dashboard.</p>
+    </div>
+
+    <!-- Loading State -->
+    <div class="loading-spinner-wrapper" *ngIf="isLoading && !org">
+      <div class="spinner"></div>
+      <p>Loading connection status...</p>
+    </div>
+
+    <!-- Form State -->
+    <div class="form-wrapper" *ngIf="!isLoading || org">
+
+      <!-- Currently Connected view -->
+      <div class="connected-view" *ngIf="isConfigured">
+        <div class="status-box succeeded">
+          <div class="status-dot"></div>
+          <div>
+            <h3>Connected</h3>
+            <p>Your app is integrated with the organization <strong>{{ currentOrg }}</strong>.</p>
+          </div>
+        </div>
+
+        <div class="btn-group">
+          <button class="btn btn-primary" (click)="router.navigate(['/dashboard'])">Go to Dashboard</button>
+          <button class="btn btn-secondary" (click)="disconnect()">Change Settings</button>
+        </div>
+      </div>
+
+      <!-- Not Connected Form -->
+      <form (submit)="onSubmit()" *ngIf="!isConfigured">
+
+        <!-- Organization -->
+        <div class="form-group">
+          <label for="org">Organization Name</label>
+          <input type="text" id="org" name="org" [(ngModel)]="org" placeholder="e.g. MyCoolOrg" required
+            [disabled]="isLoading">
+          <small class="help-text">The name of your Azure DevOps Organization (e.g.
+            dev.azure.com/<strong>OrganizationName</strong>)</small>
+        </div>
+
+        <!-- Base URL -->
+        <div class="form-group">
+          <label for="baseUrl">Base URL (Required If use On-Premises Server, Optional If use Azure DevOps Cloud)</label>
+          <input type="text" id="baseUrl" name="baseUrl" [(ngModel)]="baseUrl"
+            placeholder="e.g. https://tfs.mycompany.com/tfs" [disabled]="isLoading">
+          <small class="help-text">Enter your Azure DevOps Server collection URL.</small>
+        </div>
+
+        <!-- PAT Auth Fields -->
+        <div class="form-group fade-in">
+          <label for="pat">Personal Access Token (PAT)</label>
+          <input type="password" id="pat" name="pat" [(ngModel)]="pat" placeholder="Place your Azure DevOps PAT here"
+            required [disabled]="isLoading">
+          <small class="help-text">Requires <strong>Read</strong> access to Projects, Build, and Release
+            pipelines.</small>
+        </div>
+
+        <div class="alert alert-error" *ngIf="errorMessage">
+          <span>{{ errorMessage }}</span>
+        </div>
+
+        <div class="alert alert-success" *ngIf="successMessage">
+          <span>{{ successMessage }}</span>
+        </div>
+
+        <button type="submit" class="btn btn-primary w-full" [disabled]="isLoading">
+          <span class="spinner-small" *ngIf="isLoading"></span>
+          <span>{{ isLoading ? 'Verifying & Connecting...' : 'Connect to Organization' }}</span>
+        </button>
+      </form>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,227 @@
+<div class="app-container">
+  <app-sidebar></app-sidebar>
+
+  <div class="main-content fade-in">
+    <header>
+      <h1>CI Pipelines</h1>
+      <p class="subtitle">Monitor and queue Continuous Integration builds across all organizational projects.</p>
+    </header>
+
+    <!-- Filters Bar -->
+    <div class="filters-bar card">
+      <div class="filter-input-group search-box">
+        <label for="search">Search Pipelines</label>
+        <input 
+          type="text" 
+          id="search" 
+          [(ngModel)]="searchQuery" 
+          (ngModelChange)="onFilterChange()" 
+          placeholder="Filter by pipeline name...">
+      </div>
+
+      <div class="filter-input-group project-select">
+        <label for="project-filter">Project</label>
+        <select 
+          id="project-filter" 
+          [(ngModel)]="selectedProject" 
+          (change)="onFilterChange()" 
+          class="custom-select">
+          <option value="">All Projects</option>
+          <option *ngFor="let p of projectsList" [value]="p">{{ p }}</option>
+        </select>
+      </div>
+
+      <button class="btn btn-secondary refresh-btn" (click)="loadPipelines()" [disabled]="isLoading">
+        <span>🔄 Refresh</span>
+      </button>
+    </div>
+
+    <!-- Loading State -->
+    <div class="loading-state card" *ngIf="isLoading">
+      <div class="spinner"></div>
+      <p>Fetching build definitions and run states...</p>
+    </div>
+
+    <!-- Error State -->
+    <div class="alert alert-error" *ngIf="error">
+      <span>{{ error }}</span>
+    </div>
+
+    <!-- No Pipelines Found -->
+    <div class="no-pipelines card" *ngIf="!isLoading && !error && filteredPipelines.length === 0">
+      <p>No CI build pipelines found matching your filters.</p>
+    </div>
+
+    <!-- Pipelines Paginated List -->
+    <div *ngIf="!isLoading && !error && filteredPipelines.length > 0">
+      <div class="card table-card">
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Project</th>
+                <th>Pipeline Name</th>
+                <th>Last Run Number</th>
+                <th>Branch</th>
+                <th>Triggered By</th>
+                <th>Status</th>
+                <th>Last Run Date</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let pipeline of paginatedPipelines">
+                <td class="project-cell">
+                  <div class="project-wrapper">
+                    <span class="project-avatar-small">{{ pipeline.projectName[0] | uppercase }}</span>
+                    <span class="project-name">{{ pipeline.projectName }}</span>
+                  </div>
+                </td>
+                <td class="pipeline-name-cell">
+                  <div class="name-wrapper">
+                    <span class="name clickable-pipeline-name" (click)="viewHistory(pipeline)">{{ pipeline.name }}</span>
+                    <span class="path" *ngIf="pipeline.path && pipeline.path !== '\\'">{{ pipeline.path }}</span>
+                  </div>
+                </td>
+                <td>
+                  <span *ngIf="pipeline.latestRun">
+                    <a [href]="pipeline.latestRun.webUrl" target="_blank" class="run-link">
+                      #{{ pipeline.latestRun.buildNumber }}
+                    </a>
+                  </span>
+                  <span class="text-dimmed" *ngIf="!pipeline.latestRun">N/A</span>
+                </td>
+                <td>
+                  <span *ngIf="pipeline.latestRun && pipeline.latestRun.sourceBranch" class="branch-tag" [title]="pipeline.latestRun.sourceBranch">
+                    {{ pipeline.latestRun.sourceBranch }}
+                  </span>
+                  <span class="text-dimmed" *ngIf="!pipeline.latestRun || !pipeline.latestRun.sourceBranch">—</span>
+                </td>
+                <td>
+                  <span *ngIf="pipeline.latestRun">{{ pipeline.latestRun.requestedFor }}</span>
+                  <span class="text-dimmed" *ngIf="!pipeline.latestRun">—</span>
+                </td>
+                <td>
+                  <span *ngIf="pipeline.latestRun" class="badge badge-{{ pipeline.latestRun.result?.toLowerCase() || pipeline.latestRun.status?.toLowerCase() }}">
+                    {{ pipeline.latestRun.result || pipeline.latestRun.status }}
+                  </span>
+                  <span class="badge badge-none" *ngIf="!pipeline.latestRun">No Run</span>
+                </td>
+                <td>
+                  <span *ngIf="pipeline.latestRun && pipeline.latestRun.queueTime">
+                    {{ pipeline.latestRun.queueTime | date:'medium' }}
+                  </span>
+                  <span class="text-dimmed" *ngIf="!pipeline.latestRun || !pipeline.latestRun.queueTime">—</span>
+                </td>
+                <td class="actions-cell">
+                  <div class="action-btn-wrapper">
+                    <button 
+                      class="btn btn-secondary btn-small" 
+                      (click)="openBranchSelector(pipeline)" 
+                      [disabled]="triggeringIds[pipeline.definitionId]">
+                      <span class="spinner-small" *ngIf="triggeringIds[pipeline.definitionId]"></span>
+                      <span>{{ triggeringIds[pipeline.definitionId] ? 'Queuing...' : 'Run' }}</span>
+                    </button>
+                    <button class="btn btn-secondary btn-small icon-only-btn" (click)="viewHistory(pipeline)" title="View Runs History">
+                      👁️
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Pagination Controls -->
+        <div class="pagination-controls" *ngIf="totalPages > 1">
+          <div class="pagination-info">
+            Showing {{ (currentPage - 1) * pageSize + 1 }} to {{ Math.min(currentPage * pageSize, filteredPipelines.length) }} of {{ filteredPipelines.length }} pipelines
+          </div>
+          <div class="pagination-buttons">
+            <button class="btn btn-secondary btn-small" [disabled]="currentPage === 1" (click)="goToPage(currentPage - 1)">Previous</button>
+            <button 
+              *ngFor="let page of getPageNumbers()" 
+              class="btn btn-small" 
+              [class.btn-primary]="currentPage === page" 
+              [class.btn-secondary]="currentPage !== page"
+              (click)="goToPage(page)">
+              {{ page }}
+            </button>
+            <button class="btn btn-secondary btn-small" [disabled]="currentPage === totalPages" (click)="goToPage(currentPage + 1)">Next</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Branch Selector Modal -->
+    <div class="modal-overlay" *ngIf="showBranchModal" (click)="closeBranchModal()">
+      <div class="modal-card card" (click)="$event.stopPropagation()">
+        <header class="modal-header">
+          <h3 class="modal-title">Select Branch to Run</h3>
+          <button class="btn-close-modal" (click)="closeBranchModal()">✕</button>
+        </header>
+        
+        <div class="modal-body">
+          <p class="modal-subtitle">Choose a target branch for pipeline <strong>{{ selectedPipelineForTrigger?.name }}</strong></p>
+          
+          <!-- Loading state -->
+          <div class="modal-loading" *ngIf="isLoadingBranches">
+            <div class="spinner-small"></div>
+            <span>Fetching repository branches...</span>
+          </div>
+
+          <!-- Error/Warning state -->
+          <div class="alert alert-warning" *ngIf="branchError && !isLoadingBranches">
+            <span>{{ branchError }}</span>
+          </div>
+
+          <!-- Branch Dropdown -->
+          <div class="form-group" *ngIf="!isLoadingBranches">
+            <label for="branch-search" class="form-label">Search Branch</label>
+            <input 
+              type="text" 
+              id="branch-search" 
+              [(ngModel)]="branchSearchQuery" 
+              (ngModelChange)="filterBranches()" 
+              placeholder="Type to search branch..." 
+              class="form-control branch-search-input"
+              autocomplete="off">
+            
+            <label for="branch-select" class="form-label" style="margin-top: 0.75rem;">Target Branch</label>
+            <select id="branch-select" [(ngModel)]="selectedBranchForTrigger" class="custom-select modal-select">
+              <option *ngFor="let branch of filteredBranchesList" [value]="branch">
+                {{ getCleanBranchName(branch) }}
+              </option>
+              <option *ngIf="filteredBranchesList.length === 0" disabled>No branches match search</option>
+            </select>
+          </div>
+        </div>
+
+        <footer class="modal-footer">
+          <button class="btn btn-secondary" (click)="closeBranchModal()">Cancel</button>
+          <button class="btn btn-primary" [disabled]="isLoadingBranches" (click)="confirmTriggerPipeline()">Run Build</button>
+        </footer>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Custom Confirmation Modal -->
+  <div class="modal-overlay" *ngIf="showConfirmModal" (click)="closeConfirm()">
+    <div class="modal-card card" (click)="$event.stopPropagation()">
+      <header class="modal-header">
+        <h3 class="modal-title">{{ confirmTitle }}</h3>
+        <button class="btn-close-modal" (click)="closeConfirm()">✕</button>
+      </header>
+      
+      <div class="modal-body">
+        <p class="modal-subtitle" style="margin-bottom: 0; font-size: 1rem; color: #fff;">{{ confirmMessage }}</p>
+      </div>
+
+      <footer class="modal-footer">
+        <button class="btn btn-secondary" (click)="closeConfirm()">Cancel</button>
+        <button class="btn btn-primary" (click)="executeConfirm()">Proceed</button>
+      </footer>
+    </div>
+  </div>
+</div>

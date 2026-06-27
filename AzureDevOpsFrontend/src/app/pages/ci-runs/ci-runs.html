@@ -1,0 +1,93 @@
+<div class="app-container">
+  <app-sidebar></app-sidebar>
+
+  <div class="main-content fade-in">
+    <header class="runs-header">
+      <button class="btn btn-secondary back-btn" (click)="goBack()">
+        <span>← Back to CI List</span>
+      </button>
+      <h1 class="header-title">Pipeline Run History</h1>
+      <p class="subtitle">Detailed view of previous build runs for definition <strong>#{{ definitionId }}</strong> in project <strong>{{ project }}</strong></p>
+    </header>
+
+    <!-- Loading State -->
+    <div class="loading-state card" *ngIf="isLoading">
+      <div class="spinner"></div>
+      <p>Fetching build runs history...</p>
+    </div>
+
+    <!-- Error State -->
+    <div class="alert alert-error" *ngIf="error">
+      <span>{{ error }}</span>
+    </div>
+
+    <!-- No Runs Found -->
+    <div class="no-runs card" *ngIf="!isLoading && !error && runs.length === 0">
+      <p>No build history found for this pipeline definition.</p>
+    </div>
+
+    <!-- Runs List Table -->
+    <div *ngIf="!isLoading && !error && runs.length > 0">
+      <div class="card table-card">
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Run Number</th>
+                <th>Source Branch</th>
+                <th>Queue Date</th>
+                <th>Created By</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let run of paginatedRuns">
+                <td>
+                  <a [href]="run.webUrl" target="_blank" class="run-link font-semibold">
+                    #{{ run.buildNumber }}
+                  </a>
+                </td>
+                <td class="branch-cell">
+                  <span class="branch-badge">{{ run.sourceBranch }}</span>
+                </td>
+                <td>
+                  <span *ngIf="run.queueTime">
+                    {{ run.queueTime | date:'medium' }}
+                  </span>
+                  <span class="text-dimmed" *ngIf="!run.queueTime">—</span>
+                </td>
+                <td>
+                  <span>{{ run.requestedFor }}</span>
+                </td>
+                <td>
+                  <span class="badge badge-{{ run.result?.toLowerCase() || run.status?.toLowerCase() }}">
+                    {{ run.result || run.status }}
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Pagination Controls -->
+        <div class="pagination-controls" *ngIf="totalPages > 1">
+          <div class="pagination-info">
+            Showing {{ (currentPage - 1) * pageSize + 1 }} to {{ Math.min(currentPage * pageSize, runs.length) }} of {{ runs.length }} runs
+          </div>
+          <div class="pagination-buttons">
+            <button class="btn btn-secondary btn-small" [disabled]="currentPage === 1" (click)="goToPage(currentPage - 1)">Previous</button>
+            <button 
+              *ngFor="let page of getPageNumbers()" 
+              class="btn btn-small" 
+              [class.btn-primary]="currentPage === page" 
+              [class.btn-secondary]="currentPage !== page"
+              (click)="goToPage(page)">
+              {{ page }}
+            </button>
+            <button class="btn btn-secondary btn-small" [disabled]="currentPage === totalPages" (click)="goToPage(currentPage + 1)">Next</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

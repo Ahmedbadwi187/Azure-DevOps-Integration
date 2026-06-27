@@ -1,0 +1,154 @@
+<div class="app-container">
+  <app-sidebar></app-sidebar>
+
+  <div class="main-content fade-in">
+    <header class="runs-header">
+      <div class="header-left">
+        <button class="btn btn-secondary back-btn" (click)="goBack()">
+          <span>← Back to CD List</span>
+        </button>
+        <h1 class="header-title">Release Run History</h1>
+        <p class="subtitle">Detailed view of previous classic release runs for definition <strong>#{{ definitionId }}</strong> in project <strong>{{ project }}</strong></p>
+      </div>
+      <button class="btn btn-primary deploy-btn" (click)="triggerRelease()" [disabled]="isTriggering || isLoading">
+        <span class="spinner-small" *ngIf="isTriggering"></span>
+        <span>{{ isTriggering ? 'Deploying...' : 'Deploy' }}</span>
+      </button>
+    </header>
+
+    <!-- Loading State -->
+    <div class="loading-state card" *ngIf="isLoading">
+      <div class="spinner"></div>
+      <p>Fetching release runs history...</p>
+    </div>
+
+    <!-- Error State -->
+    <div class="alert alert-error" *ngIf="error">
+      <span>{{ error }}</span>
+    </div>
+
+    <!-- No Runs Found -->
+    <div class="no-runs card" *ngIf="!isLoading && !error && runs.length === 0">
+      <p>No release history found for this pipeline definition.</p>
+    </div>
+
+    <!-- Runs List Table -->
+    <div *ngIf="!isLoading && !error && runs.length > 0">
+      <div class="card table-card">
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Release Name</th>
+                <th>Branch</th>
+                <th>Created On</th>
+                <th>Created By</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <ng-container *ngFor="let run of paginatedRuns">
+                <tr>
+                  <td>
+                    <a [href]="run.webUrl" target="_blank" class="run-link font-semibold">
+                      {{ run.name }}
+                    </a>
+                  </td>
+                  <td>
+                    <span *ngIf="run.sourceBranch" class="branch-tag" [title]="run.sourceBranch">
+                      {{ run.sourceBranch }}
+                    </span>
+                    <span class="text-dimmed" *ngIf="!run.sourceBranch">—</span>
+                  </td>
+                  <td>
+                    <span *ngIf="run.createdOn">
+                      {{ run.createdOn | date:'medium' }}
+                    </span>
+                    <span class="text-dimmed" *ngIf="!run.createdOn">—</span>
+                  </td>
+                  <td>
+                    <span>{{ run.createdBy }}</span>
+                  </td>
+                  <td>
+                    <span class="badge badge-{{ run.status?.toLowerCase() }}">
+                      {{ run.status }}
+                    </span>
+                  </td>
+                  <td>
+                    <!-- placeholder for actions column -->
+                  </td>
+                </tr>
+                <tr class="pipeline-child-row">
+                  <td colspan="6">
+                    <div class="child-row-content">
+                      <span class="stages-title-text">Environment Stages:</span>
+                      <div class="environments-container" *ngIf="run.environments && run.environments.length > 0">
+                        <div class="env-item status-{{ getEnvDisplayStatus(env)?.toLowerCase() || 'none' }}" *ngFor="let env of run.environments">
+                          <span class="env-name">{{ env.name }}</span>
+                          <span class="badge badge-{{ getEnvDisplayStatus(env)?.toLowerCase() }}">
+                            {{ getEnvDisplayStatus(env) }}
+                          </span>
+                          <div class="env-actions" style="display: flex; gap: 8px; margin-top: 4px; align-items: center; justify-content: center;">
+                            <div class="action-btn-wrapper" *ngIf="canActOnEnv(env)" style="display: flex; gap: 4px;">
+                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="cursor:pointer;color:#28a745;" title="Approve" (click)="approveRelease(env.id)"><path d="M5 13l4 4L19 7"/></svg>
+                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="cursor:pointer;color:#dc3545;" title="Reject" (click)="rejectRelease(env.id)"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                            </div>
+                            <div class="action-btn-wrapper" *ngIf="canDeployEnv(env)" style="display: flex; align-items: center;">
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="cursor:pointer;color:var(--secondary);" title="Deploy/Redeploy Stage" (click)="deployEnv(run.id, env.id, env.name)">
+                                <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                              </svg>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <span class="text-dimmed text-xs" *ngIf="!run.environments || run.environments.length === 0">No stages</span>
+                    </div>
+                  </td>
+                </tr>
+              </ng-container>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Pagination Controls -->
+        <div class="pagination-controls" *ngIf="totalPages > 1">
+          <div class="pagination-info">
+            Showing {{ (currentPage - 1) * pageSize + 1 }} to {{ Math.min(currentPage * pageSize, runs.length) }} of {{ runs.length }} releases
+          </div>
+          <div class="pagination-buttons">
+            <button class="btn btn-secondary btn-small" [disabled]="currentPage === 1" (click)="goToPage(currentPage - 1)">Previous</button>
+            <button 
+              *ngFor="let page of getPageNumbers()" 
+              class="btn btn-small" 
+              [class.btn-primary]="currentPage === page" 
+              [class.btn-secondary]="currentPage !== page"
+              (click)="goToPage(page)">
+              {{ page }}
+            </button>
+            <button class="btn btn-secondary btn-small" [disabled]="currentPage === totalPages" (click)="goToPage(currentPage + 1)">Next</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Custom Confirmation Modal -->
+  <div class="modal-overlay" *ngIf="showConfirmModal" (click)="closeConfirm()">
+    <div class="modal-card card" (click)="$event.stopPropagation()">
+      <header class="modal-header">
+        <h3 class="modal-title">{{ confirmTitle }}</h3>
+        <button class="btn-close-modal" (click)="closeConfirm()">✕</button>
+      </header>
+      
+      <div class="modal-body">
+        <p class="modal-subtitle" style="margin-bottom: 0; font-size: 1rem; color: #fff;">{{ confirmMessage }}</p>
+      </div>
+
+      <footer class="modal-footer">
+        <button class="btn btn-secondary" (click)="closeConfirm()">Cancel</button>
+        <button class="btn btn-primary" (click)="executeConfirm()">Proceed</button>
+      </footer>
+    </div>
+  </div>
+</div>

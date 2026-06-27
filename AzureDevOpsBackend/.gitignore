@@ -1,0 +1,11 @@
+# User sensitive configuration
+config.json
+
+# Build results
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+[Bb]in/
+[Oo]bj/
+.vs
