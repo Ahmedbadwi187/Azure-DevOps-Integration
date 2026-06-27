@@ -24,177 +24,173 @@
       <span class="alert-message">{{ error }}</span>
     </div>
 
-    <!-- Initial Loading State -->
-    <div class="loading-state card animate-pulse" *ngIf="isLoading && !summary">
-      <div class="spinner"></div>
-      <p>Crunching metrics and computing trends...</p>
-    </div>
-
-    <ng-container *ngIf="summary">
-      <!-- Summary Cards Grid -->
-      <section class="summary-cards-grid">
-        <!-- Success Rate Card -->
-        <div class="metric-card card">
-          <div class="card-loader-overlay" *ngIf="isLoading">
-            <div class="spinner-small"></div>
-          </div>
-          <div class="metric-icon success-icon-bg">💚</div>
-          <div class="metric-info">
-            <span class="metric-title">Build Success Rate</span>
-            <div class="metric-value">{{ summary.successRate }}%</div>
-            <div class="progress-bar-wrapper">
-              <div class="progress-bar" [style.width]="summary.successRate + '%'"></div>
-            </div>
+    <!-- Summary Cards Grid -->
+    <section class="summary-cards-grid">
+      <!-- Success Rate Card -->
+      <div class="metric-card card">
+        <div class="card-loader-overlay" *ngIf="isLoading">
+          <div class="spinner-small"></div>
+        </div>
+        <div class="metric-icon success-icon-bg">💚</div>
+        <div class="metric-info">
+          <span class="metric-title">Build Success Rate</span>
+          <div class="metric-value">{{ summary ? summary.successRate + '%' : '--' }}</div>
+          <div class="progress-bar-wrapper">
+            <div class="progress-bar" [style.width]="(summary ? summary.successRate : 0) + '%'"></div>
           </div>
         </div>
+      </div>
 
-        <!-- Deployments Card -->
-        <div class="metric-card card">
-          <div class="card-loader-overlay" *ngIf="isLoading">
-            <div class="spinner-small"></div>
-          </div>
-          <div class="metric-icon deploy-icon-bg">🚀</div>
-          <div class="metric-info">
-            <span class="metric-title">Total Deployments</span>
-            <div class="metric-value">{{ summary.totalDeployments }}</div>
-            <div class="metric-sub">{{ summary.deploymentFrequency }} / day</div>
-          </div>
+      <!-- Deployments Card -->
+      <div class="metric-card card">
+        <div class="card-loader-overlay" *ngIf="isLoading">
+          <div class="spinner-small"></div>
         </div>
+        <div class="metric-icon deploy-icon-bg">🚀</div>
+        <div class="metric-info">
+          <span class="metric-title">Total Deployments</span>
+          <div class="metric-value">{{ summary ? summary.totalDeployments : '--' }}</div>
+          <div class="metric-sub">{{ summary ? summary.deploymentFrequency + ' / day' : '--' }}</div>
+        </div>
+      </div>
 
-        <!-- Average Duration Card -->
-        <div class="metric-card card">
-          <div class="card-loader-overlay" *ngIf="isLoading">
-            <div class="spinner-small"></div>
-          </div>
-          <div class="metric-icon time-icon-bg">⏱️</div>
-          <div class="metric-info">
-            <span class="metric-title">Avg Build Duration</span>
-            <div class="metric-value">{{ formatDuration(summary.averageDurationSeconds) }}</div>
-            <div class="metric-sub">Average runtime</div>
-          </div>
+      <!-- Average Duration Card -->
+      <div class="metric-card card">
+        <div class="card-loader-overlay" *ngIf="isLoading">
+          <div class="spinner-small"></div>
         </div>
+        <div class="metric-icon time-icon-bg">⏱️</div>
+        <div class="metric-info">
+          <span class="metric-title">Avg Build Duration</span>
+          <div class="metric-value">{{ summary ? formatDuration(summary.averageDurationSeconds) : '--' }}</div>
+          <div class="metric-sub">Average runtime</div>
+        </div>
+      </div>
 
-        <!-- MTTR Card -->
-        <div class="metric-card card">
-          <div class="card-loader-overlay" *ngIf="isLoading">
-            <div class="spinner-small"></div>
-          </div>
-          <div class="metric-icon mttr-icon-bg">🩹</div>
-          <div class="metric-info">
-            <span class="metric-title">MTTR</span>
-            <div class="metric-value">{{ formatMttr(summary.mttrSeconds) }}</div>
-            <div class="metric-sub">Time to resolve failures</div>
-          </div>
+      <!-- MTTR Card -->
+      <div class="metric-card card">
+        <div class="card-loader-overlay" *ngIf="isLoading">
+          <div class="spinner-small"></div>
         </div>
-      </section>
+        <div class="metric-icon mttr-icon-bg">🩹</div>
+        <div class="metric-info">
+          <span class="metric-title">MTTR</span>
+          <div class="metric-value">{{ summary ? formatMttr(summary.mttrSeconds) : '--' }}</div>
+          <div class="metric-sub">Time to resolve failures</div>
+        </div>
+      </div>
+    </section>
 
-      <!-- Charts Trend Grid -->
-      <section class="charts-grid">
-        <!-- Success Rate Trend -->
-        <div class="chart-card card">
-          <div class="card-loader-overlay" *ngIf="isLoading">
-            <div class="spinner-small"></div>
-          </div>
-          <div class="chart-card-header">
-            <h3>Build Success Rate</h3>
-            <span class="chart-subtitle">Daily success percentage</span>
-          </div>
-          <div class="chart-canvas-wrapper">
-            <canvas id="successRateChart"></canvas>
-          </div>
+    <!-- Charts Trend Grid -->
+    <section class="charts-grid">
+      <!-- Success Rate Trend -->
+      <div class="chart-card card">
+        <div class="chart-card-overlay" *ngIf="isLoading && !summary" style="position: absolute; top:0; left:0; width:100%; height:100%; display:flex; align-items:center; justify-content:center; background: rgba(11, 15, 25, 0.45); border-radius:12px;"><div class="spinner-small"></div></div>
+        <div class="card-loader-overlay" *ngIf="isLoading && summary">
+          <div class="spinner-small"></div>
         </div>
+        <div class="chart-card-header">
+          <h3>Build Success Rate</h3>
+          <span class="chart-subtitle">Daily success percentage</span>
+        </div>
+        <div class="chart-canvas-wrapper">
+          <canvas id="successRateChart"></canvas>
+        </div>
+      </div>
 
-        <!-- Deployment Volume Trend -->
-        <div class="chart-card card">
-          <div class="card-loader-overlay" *ngIf="isLoading">
-            <div class="spinner-small"></div>
-          </div>
-          <div class="chart-card-header">
-            <h3>Deployments Volume</h3>
-            <span class="chart-subtitle">Daily deployment volume</span>
-          </div>
-          <div class="chart-canvas-wrapper">
-            <canvas id="deploymentChart"></canvas>
-          </div>
+      <!-- Deployment Volume Trend -->
+      <div class="chart-card card">
+        <div class="chart-card-overlay" *ngIf="isLoading && !summary" style="position: absolute; top:0; left:0; width:100%; height:100%; display:flex; align-items:center; justify-content:center; background: rgba(11, 15, 25, 0.45); border-radius:12px;"><div class="spinner-small"></div></div>
+        <div class="card-loader-overlay" *ngIf="isLoading && summary">
+          <div class="spinner-small"></div>
         </div>
+        <div class="chart-card-header">
+          <h3>Deployments Volume</h3>
+          <span class="chart-subtitle">Daily deployment volume</span>
+        </div>
+        <div class="chart-canvas-wrapper">
+          <canvas id="deploymentChart"></canvas>
+        </div>
+      </div>
 
-        <!-- Build Duration Trend -->
-        <div class="chart-card card">
-          <div class="card-loader-overlay" *ngIf="isLoading">
-            <div class="spinner-small"></div>
-          </div>
-          <div class="chart-card-header">
-            <h3>Average Build Duration</h3>
-            <span class="chart-subtitle">Execution duration (minutes)</span>
-          </div>
-          <div class="chart-canvas-wrapper">
-            <canvas id="durationChart"></canvas>
-          </div>
+      <!-- Build Duration Trend -->
+      <div class="chart-card card">
+        <div class="chart-card-overlay" *ngIf="isLoading && !summary" style="position: absolute; top:0; left:0; width:100%; height:100%; display:flex; align-items:center; justify-content:center; background: rgba(11, 15, 25, 0.45); border-radius:12px;"><div class="spinner-small"></div></div>
+        <div class="card-loader-overlay" *ngIf="isLoading && summary">
+          <div class="spinner-small"></div>
         </div>
+        <div class="chart-card-header">
+          <h3>Average Build Duration</h3>
+          <span class="chart-subtitle">Execution duration (minutes)</span>
+        </div>
+        <div class="chart-canvas-wrapper">
+          <canvas id="durationChart"></canvas>
+        </div>
+      </div>
 
-        <!-- MTTR Trend -->
-        <div class="chart-card card">
-          <div class="card-loader-overlay" *ngIf="isLoading">
-            <div class="spinner-small"></div>
-          </div>
-          <div class="chart-card-header">
-            <h3>Mean Time to Resolution (MTTR)</h3>
-            <span class="chart-subtitle">Average recovery duration (hours)</span>
-          </div>
-          <div class="chart-canvas-wrapper">
-            <canvas id="mttrChart"></canvas>
-          </div>
+      <!-- MTTR Trend -->
+      <div class="chart-card card">
+        <div class="chart-card-overlay" *ngIf="isLoading && !summary" style="position: absolute; top:0; left:0; width:100%; height:100%; display:flex; align-items:center; justify-content:center; background: rgba(11, 15, 25, 0.45); border-radius:12px;"><div class="spinner-small"></div></div>
+        <div class="card-loader-overlay" *ngIf="isLoading && summary">
+          <div class="spinner-small"></div>
         </div>
-      </section>
+        <div class="chart-card-header">
+          <h3>Mean Time to Resolution (MTTR)</h3>
+          <span class="chart-subtitle">Average recovery duration (hours)</span>
+        </div>
+        <div class="chart-canvas-wrapper">
+          <canvas id="mttrChart"></canvas>
+        </div>
+      </div>
+    </section>
 
-      <!-- Pipelines Leaderboard -->
-      <section class="leaderboard-section">
-        <div class="table-card card">
-          <div class="card-loader-overlay" *ngIf="isLoading">
-            <div class="spinner-small"></div>
-          </div>
-          <div class="table-card-header">
-            <h2>Pipeline Performance Leaderboard</h2>
-            <p class="subtitle font-normal text-dimmed">Ranked by overall build and deployment metrics</p>
-          </div>
-          <div class="table-wrapper">
-            <table class="data-table">
-              <thead>
-                <tr>
-                  <th>Pipeline Name</th>
-                  <th>Project</th>
-                  <th>Success Rate</th>
-                  <th>Avg Duration</th>
-                  <th>MTTR</th>
-                  <th>Deploy Frequency</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr *ngFor="let pipe of pipelines">
-                  <td class="font-semibold text-main">{{ pipe.name }}</td>
-                  <td class="text-dimmed">{{ pipe.projectName }}</td>
-                  <td>
-                    <span class="badge" 
-                          [class.badge-succeeded]="pipe.successRate >= 90" 
-                          [class.badge-partiallysucceeded]="pipe.successRate >= 75 && pipe.successRate < 90"
-                          [class.badge-failed]="pipe.successRate < 75">
-                      {{ pipe.successRate }}%
-                    </span>
-                  </td>
-                  <td class="text-main">{{ formatDuration(pipe.averageDurationSeconds) }}</td>
-                  <td class="text-main font-semibold">{{ formatMttr(pipe.mttrSeconds) }}</td>
-                  <td class="text-dimmed">{{ pipe.deploymentFrequency }} / day</td>
-                </tr>
-                <tr *ngIf="!pipelines || pipelines.length === 0">
-                  <td colspan="6" class="text-center text-dimmed py-8">
-                    No active pipelines recorded in this timeframe.
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+    <!-- Pipelines Leaderboard -->
+    <section class="leaderboard-section">
+      <div class="table-card card">
+        <div class="card-loader-overlay" *ngIf="isLoading">
+          <div class="spinner-small"></div>
         </div>
-      </section>
-    </ng-container>
+        <div class="table-card-header">
+          <h2>Pipeline Performance Leaderboard</h2>
+          <p class="subtitle font-normal text-dimmed">Ranked by overall build and deployment metrics</p>
+        </div>
+        <div class="table-wrapper">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Pipeline Name</th>
+                <th>Project</th>
+                <th>Success Rate</th>
+                <th>Avg Duration</th>
+                <th>MTTR</th>
+                <th>Deploy Frequency</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let pipe of pipelines">
+                <td class="font-semibold text-main">{{ pipe.name }}</td>
+                <td class="text-dimmed">{{ pipe.projectName }}</td>
+                <td>
+                  <span class="badge" 
+                        [class.badge-succeeded]="pipe.successRate >= 90" 
+                        [class.badge-partiallysucceeded]="pipe.successRate >= 75 && pipe.successRate < 90"
+                        [class.badge-failed]="pipe.successRate < 75">
+                    {{ pipe.successRate }}%
+                  </span>
+                </td>
+                <td class="text-main">{{ formatDuration(pipe.averageDurationSeconds) }}</td>
+                <td class="text-main font-semibold">{{ formatMttr(pipe.mttrSeconds) }}</td>
+                <td class="text-dimmed">{{ pipe.deploymentFrequency }} / day</td>
+              </tr>
+              <tr *ngIf="(!pipelines || pipelines.length === 0) && !isLoading">
+                <td colspan="6" class="text-center text-dimmed py-8">
+                  No active pipelines recorded in this timeframe.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
   </div>
 </div>
