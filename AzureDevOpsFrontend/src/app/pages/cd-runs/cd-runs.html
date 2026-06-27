@@ -44,7 +44,6 @@
                 <th>Created On</th>
                 <th>Created By</th>
                 <th>Status</th>
-                <th>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -82,12 +81,9 @@
                       {{ run.status }}
                     </span>
                   </td>
-                  <td>
-                    <!-- placeholder for actions column -->
-                  </td>
                 </tr>
                 <tr class="pipeline-child-row" *ngIf="expandedRuns[run.id]">
-                  <td colspan="6">
+                  <td colspan="5">
                     <div class="child-row-content">
                       <div class="grouped-environments-wrapper" *ngIf="run.environments && run.environments.length > 0">
                         <div class="environments-container-row" *ngFor="let group of getGroupedEnvironments(run.environments)">
