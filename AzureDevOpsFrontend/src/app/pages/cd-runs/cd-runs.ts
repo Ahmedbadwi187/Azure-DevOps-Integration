@@ -30,6 +30,27 @@ export class CdRuns implements OnInit {
     return status === 'pending' || status === 'pendingapproval' ||
       (status === 'inprogress' && opStatus === 'pending');
   }
+
+  // Group environments by name category prefix (e.g. "admin 1", "admin 2" -> "admin" row)
+  getGroupedEnvironments(environments: any[]): any[][] {
+    if (!environments) return [];
+    const groups: { [key: string]: any[] } = {};
+    const order: string[] = [];
+    
+    environments.forEach(env => {
+      // Split by space, hyphen, underscore or digit to get prefix category (e.g. "admin")
+      const parts = env.name.split(/[\s\-_\d]+/);
+      const prefix = parts[0] ? parts[0].toLowerCase() : 'other';
+      
+      if (!groups[prefix]) {
+        groups[prefix] = [];
+        order.push(prefix);
+      }
+      groups[prefix].push(env);
+    });
+    
+    return order.map(prefix => groups[prefix]);
+  }
   private readonly devOpsService = inject(DevOpsService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
