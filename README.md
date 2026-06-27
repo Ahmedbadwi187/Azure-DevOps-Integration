@@ -33,7 +33,7 @@ A modern, high-performance web dashboard for monitoring, triggering, and managin
 - **State Management**: Reactive Local Storage Caching
 
 ### Backend
-- **Framework**: ASP.NET Core 8 Web API
+- **Framework**: ASP.NET Core 10 Web API
 - **Client**: HttpClient integrating with Azure DevOps REST API
 - **Services**: Token-based authentication, Projects, Build pipelines, and Release pipelines service providers.
 
@@ -42,7 +42,7 @@ A modern, high-performance web dashboard for monitoring, triggering, and managin
 ## 🚀 Getting Started
 
 ### Prerequisites
-- [.NET Core SDK 8.0+](https://dotnet.microsoft.com/download)
+- [.NET Core SDK 10.0+](https://dotnet.microsoft.com/download)
 - [Node.js 20+](https://nodejs.org)
 - [Angular CLI](https://angular.dev/tools/cli) (installed globally: `npm install -g @angular/cli`)
 
@@ -73,7 +73,7 @@ The application will open automatically at `http://localhost:4200/`.
 ```text
 Azure DevOps Integration/
 │
-├── AzureDevOpsBackend/         # ASP.NET Core 8 Backend Web API
+├── AzureDevOpsBackend/         # ASP.NET Core 10 Backend Web API
 │   ├── Controllers/            # API Controllers (Auth, Pipelines, Projects)
 │   ├── Services/               # Azure DevOps REST Integration logic
 │   ├── Models/                 # Shared data models
