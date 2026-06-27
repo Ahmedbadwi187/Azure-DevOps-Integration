@@ -88,12 +88,64 @@
   gap: 1.25rem;
   width: 100%;
   flex-grow: 1;
+  position: relative;
 }
 
 .environments-container-row {
+  position: relative;
   display: flex;
   align-items: center;
   width: 100%;
+  padding-left: 2rem;
+}
+
+/* Draw horizontal branch line for every row */
+.environments-container-row::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 2rem;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateY(-50%);
+}
+
+/* Draw a vertical line connecting parallel rows */
+.environments-container-row::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  width: 2px;
+  background: rgba(255, 255, 255, 0.15);
+}
+
+/* First row's vertical line goes from center down */
+.environments-container-row:first-child::after {
+  top: 50%;
+  bottom: 0;
+}
+
+/* Middle rows have full vertical line */
+.environments-container-row:not(:first-child):not(:last-child)::after {
+  top: 0;
+  bottom: 0;
+}
+
+/* Last row's vertical line goes from top to center */
+.environments-container-row:last-child::after {
+  top: 0;
+  height: 50%;
+}
+
+/* If there is only one row, hide all branching connectors */
+.environments-container-row:only-child::after,
+.environments-container-row:only-child::before {
+  display: none;
+}
+
+.environments-container-row:only-child {
+  padding-left: 0;
 }
 
 .environments-container {

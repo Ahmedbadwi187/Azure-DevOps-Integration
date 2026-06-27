@@ -31,25 +31,24 @@ export class CdRuns implements OnInit {
       (status === 'inprogress' && opStatus === 'pending');
   }
 
-  // Group environments by name category prefix (e.g. "admin 1", "admin 2" -> "admin" row)
+  // Group environments by name category base (stripping trailing numbers/spaces, e.g. "Donates Admin 1" -> "Donates Admin" row)
   getGroupedEnvironments(environments: any[]): any[][] {
     if (!environments) return [];
     const groups: { [key: string]: any[] } = {};
     const order: string[] = [];
     
     environments.forEach(env => {
-      // Split by space, hyphen, underscore or digit to get prefix category (e.g. "admin")
-      const parts = env.name.split(/[\s\-_\d]+/);
-      const prefix = parts[0] ? parts[0].toLowerCase() : 'other';
+      // Strip trailing numbers, hyphens, underscores and spaces (e.g. "Donates Admin 1" -> "donates admin")
+      const groupKey = env.name.replace(/[\s\-_]*\d+\s*$/, '').trim().toLowerCase();
       
-      if (!groups[prefix]) {
-        groups[prefix] = [];
-        order.push(prefix);
+      if (!groups[groupKey]) {
+        groups[groupKey] = [];
+        order.push(groupKey);
       }
-      groups[prefix].push(env);
+      groups[groupKey].push(env);
     });
     
-    return order.map(prefix => groups[prefix]);
+    return order.map(groupKey => groups[groupKey]);
   }
   private readonly devOpsService = inject(DevOpsService);
   private readonly route = inject(ActivatedRoute);
