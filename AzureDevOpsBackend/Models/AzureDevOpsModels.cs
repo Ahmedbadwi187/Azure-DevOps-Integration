@@ -45,6 +45,9 @@ namespace AzureDevOpsBackend.Models
         public string RequestedFor { get; set; } = string.Empty;
         public string SourceBranch { get; set; } = string.Empty;
         public string WebUrl { get; set; } = string.Empty;
+        public string ProjectName { get; set; } = string.Empty;
+        public int PipelineId { get; set; }
+        public string PipelineName { get; set; } = string.Empty;
     }
 
     public class CdPipelineModel
@@ -68,6 +71,7 @@ namespace AzureDevOpsBackend.Models
         public List<ReleaseEnvironmentModel> Environments { get; set; } = new();
         public string WebUrl { get; set; } = string.Empty;
         public string SourceBranch { get; set; } = string.Empty;
+        public string ProjectName { get; set; } = string.Empty;
     }
 
     public class ReleaseEnvironmentModel

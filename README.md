@@ -13,8 +13,13 @@ A modern, high-performance web dashboard for monitoring, triggering, and managin
   - Trigger manual pipeline runs with branch selection capability.
 - **🚀 CD Release Manager**:
   - Monitor deployment status across environments and release stages.
+  - **Release Stage Timeline**: Interactive parallel stage track visualizer with horizontal flows, vertical branching tree connectors, and collapse/expand toggles.
   - Approve or reject pending deployment approvals directly from the dashboard.
   - Manually deploy or redeploy releases to specific environments.
+- **📉 Analytics & MTTR Dashboard**:
+  - Dedicated analytics dashboard tracking DORA-style metrics over 2, 7, 30, or 90 days.
+  - Displays Mean Time to Resolution (MTTR), success rates, deployment frequencies, average durations with interactive Chart.js line and bar charts.
+  - Includes a Pipeline Performance Leaderboard ranking active projects and pipelines.
 - **📈 Project-wise Breakdown**: Stacked bar charts built with Chart.js to inspect status distributions grouped by project.
 - **📱 Premium Glassmorphism UI**:
   - Fully responsive grid layout optimized for all screen sizes.

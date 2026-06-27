@@ -645,12 +645,28 @@ namespace AzureDevOpsBackend.Services
                         using var client = CreateClient(config);
                         var buildUrl = $"{project.Name}/_apis/build/builds?api-version=6.0&$top=1000";
                         var buildsResponse = await client.GetFromJsonAsync<AzureDevOpsListResponse<RawBuild>>(buildUrl);
-                        return buildsResponse?.Value ?? new List<RawBuild>();
+                        if (buildsResponse?.Value == null) return new List<BuildRunModel>();
+
+                        return buildsResponse.Value.Select(b => new BuildRunModel
+                        {
+                            Id = b.Id,
+                            BuildNumber = b.BuildNumber,
+                            Status = b.Status,
+                            Result = b.Result,
+                            QueueTime = b.QueueTime,
+                            StartTime = b.StartTime,
+                            FinishTime = b.FinishTime,
+                            RequestedFor = b.RequestedFor?.DisplayName ?? string.Empty,
+                            SourceBranch = b.SourceBranch,
+                            ProjectName = project.Name,
+                            PipelineId = b.Definition?.Id ?? 0,
+                            PipelineName = b.Definition?.Name ?? string.Empty
+                        }).ToList();
                     }
                     catch (Exception ex)
                     {
                         _logger.LogWarning(ex, $"Failed to fetch builds for analytics in project {project.Name}");
-                        return new List<RawBuild>();
+                        return new List<BuildRunModel>();
                     }
                 }).ToList();
 
@@ -661,39 +677,30 @@ namespace AzureDevOpsBackend.Services
                         using var releaseClient = CreateClient(config, isReleaseApi: true);
                         var releasesUrl = $"{project.Name}/_apis/release/releases?api-version=6.0-preview.4&$top=500";
                         var releasesResponse = await releaseClient.GetFromJsonAsync<AzureDevOpsListResponse<RawRelease>>(releasesUrl);
-                        return releasesResponse?.Value ?? new List<RawRelease>();
+                        if (releasesResponse?.Value == null) return new List<ReleaseRunModel>();
+
+                        return releasesResponse.Value.Select(r => new ReleaseRunModel
+                        {
+                            Id = r.Id,
+                            Name = r.Name,
+                            Status = r.Status,
+                            CreatedOn = r.CreatedOn,
+                            CreatedBy = r.CreatedBy?.DisplayName ?? string.Empty,
+                            ProjectName = project.Name
+                        }).ToList();
                     }
                     catch (Exception ex)
                     {
                         _logger.LogWarning(ex, $"Failed to fetch releases for analytics in project {project.Name}");
-                        return new List<RawRelease>();
+                        return new List<ReleaseRunModel>();
                     }
                 }).ToList();
 
                 var buildsResults = await Task.WhenAll(buildTasks);
                 var releasesResults = await Task.WhenAll(releaseTasks);
 
-                var allBuilds = buildsResults.SelectMany(list => list.Select(b => new BuildRunModel
-                {
-                    Id = b.Id,
-                    BuildNumber = b.BuildNumber,
-                    Status = b.Status,
-                    Result = b.Result,
-                    QueueTime = b.QueueTime,
-                    StartTime = b.StartTime,
-                    FinishTime = b.FinishTime,
-                    RequestedFor = b.RequestedFor?.DisplayName ?? string.Empty,
-                    SourceBranch = b.SourceBranch
-                })).ToList();
-
-                var allReleases = releasesResults.SelectMany(list => list.Select(r => new ReleaseRunModel
-                {
-                    Id = r.Id,
-                    Name = r.Name,
-                    Status = r.Status,
-                    CreatedOn = r.CreatedOn,
-                    CreatedBy = r.CreatedBy?.DisplayName ?? string.Empty
-                })).ToList();
+                var allBuilds = buildsResults.SelectMany(list => list).ToList();
+                var allReleases = releasesResults.SelectMany(list => list).ToList();
 
                 var cutoffDate = DateTime.UtcNow.AddDays(-days);
                 var filteredBuilds = allBuilds.Where(b => b.QueueTime >= cutoffDate).ToList();
@@ -752,7 +759,7 @@ namespace AzureDevOpsBackend.Services
                     {
                         Id = g.Key.DefinitionId,
                         Name = g.FirstOrDefault()?.BuildNumber ?? "Pipeline",
-                        ProjectName = "Project",
+                        ProjectName = g.FirstOrDefault()?.ProjectName ?? "Project",
                         DeploymentFrequency = Math.Round((double)g.Count() / days, 2),
                         SuccessRate = g.Any(b => b.Result?.ToLower() == "succeeded") ? Math.Round((double)g.Count(b => b.Result?.ToLower() == "succeeded") / g.Count() * 100, 1) : 100,
                         AverageDurationSeconds = g.Any(b => b.StartTime.HasValue && b.FinishTime.HasValue) ? Math.Round(g.Where(b => b.StartTime.HasValue && b.FinishTime.HasValue).Average(b => (b.FinishTime.Value - b.StartTime.Value).TotalSeconds), 0) : 0,
