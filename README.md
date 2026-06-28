@@ -32,7 +32,7 @@ A modern, high-performance web dashboard for monitoring, triggering, and managin
 ## 🛠️ Technology Stack
 
 ### Frontend
-- **Framework**: Angular 18 (Standalone Components)
+- **Framework**: Angular 22 (Standalone Components)
 - **Styling**: Vanilla CSS (Premium Glassmorphic Design System, responsive grid layout)
 - **Visualization**: Chart.js (with custom dark-theme overrides)
 - **State Management**: Reactive Local Storage Caching
