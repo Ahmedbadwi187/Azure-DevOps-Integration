@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, OnDestroy, ChangeDetectorRef, AfterViewChecked } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Sidebar } from '../../components/sidebar/sidebar';
 import { DevOpsService } from '../../services/devops.service';
@@ -11,7 +11,7 @@ import { Chart } from 'chart.js/auto';
   templateUrl: './analytics.html',
   styleUrl: './analytics.css'
 })
-export class Analytics implements OnInit, OnDestroy, AfterViewChecked {
+export class Analytics implements OnInit, OnDestroy {
   private readonly devOpsService = inject(DevOpsService);
   private readonly cdr = inject(ChangeDetectorRef);
 
@@ -27,8 +27,6 @@ export class Analytics implements OnInit, OnDestroy, AfterViewChecked {
   private deploymentChart: Chart | null = null;
   private durationChart: Chart | null = null;
   private mttrChart: Chart | null = null;
-  
-  private pendingChartUpdate = false;
 
   ngOnInit() {
     this.loadAnalytics();
@@ -36,13 +34,6 @@ export class Analytics implements OnInit, OnDestroy, AfterViewChecked {
 
   ngOnDestroy() {
     this.destroyCharts();
-  }
-
-  ngAfterViewChecked() {
-    if (this.pendingChartUpdate) {
-      this.pendingChartUpdate = false;
-      this.initCharts();
-    }
   }
 
   loadAnalytics() {
@@ -57,8 +48,8 @@ export class Analytics implements OnInit, OnDestroy, AfterViewChecked {
         this.trends = data.trends;
         this.pipelines = data.pipelines;
         this.isLoading = false;
-        this.pendingChartUpdate = true;
         this.cdr.detectChanges();
+        this.initCharts();
       },
       error: (err) => {
         console.error('Failed to load analytics', err);
